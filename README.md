@@ -6,7 +6,6 @@ consumption, cost allocation, capacity efficiency, and service ownership.
 Developed by **Vaipex Labs** for the developer and platform engineering
 community.
 
-![Status](https://img.shields.io/badge/Status-Complete-16A34A)
 ![Focus](https://img.shields.io/badge/Focus-FinOps%20%26%20Capacity-0B5FFF)
 ![Kubernetes](https://img.shields.io/badge/Platform-Kubernetes-326CE5?logo=kubernetes&logoColor=white)
 ![OpenCost](https://img.shields.io/badge/Cost-OpenCost-7C3AED)
@@ -14,16 +13,19 @@ community.
 
 [Project at a Glance](#project-at-a-glance) ·
 [Why This Project Exists](#why-this-project-exists) ·
-[Intended Flow](#intended-flow) ·
+[How It Works](#how-it-works) ·
 [Component Architecture](#component-architecture) ·
+[Who This Is For](#who-this-is-for) ·
+[Project Boundaries](#project-boundaries) ·
+[Design Principles](#design-principles) ·
 [Two-Minute Demo](#two-minute-demo) ·
 [What the Demo Proves](#what-the-demo-proves) ·
-[Project Boundaries](#project-boundaries) ·
-[Operations](#operations)
+[Operations](#operations) ·
+[Contributing](#contributing)
 
 ## Project at a Glance
 
-| Area | Intended capability |
+| Area | Capability |
 | --- | --- |
 | Cost allocation | Estimate Kubernetes workload cost by service, team, namespace, and environment |
 | Capacity visibility | Compare requested CPU and memory with actual utilization |
@@ -45,7 +47,7 @@ infrastructure consumption into engineering context. It is intended to help
 platform teams make cost visible without turning optimization into an opaque
 finance exercise or automatically trading away service reliability.
 
-## Intended Flow
+## How It Works
 
 ![Vaipex Cloud Cost and Capacity Control Plane flow](docs/images/vaipex-cloud-cost-capacity-flow.svg)
 
@@ -58,7 +60,7 @@ The operating principle is:
 ## Component Architecture
 
 The project uses a compact, explicitly wired stack instead of the broader
-`kube-prometheus-stack`. This keeps the learning surface focused on the minimum
+`kube-prometheus-stack`. This keeps the implementation focused on the minimum
 components required for cost allocation and capacity analysis.
 
 ![Vaipex Cloud Cost and Capacity Control Plane architecture](docs/images/vaipex-cloud-cost-capacity-architecture.svg)
@@ -91,7 +93,7 @@ This approach makes the data flow and integration points visible. The larger
 operators, alerting components, and predefined monitoring resources are beyond
 the cost-and-capacity scope of this lab.
 
-## Intended Users
+## Who This Is For
 
 - Platform engineering teams operating Kubernetes.
 - Service owners tuning workload capacity.
@@ -114,7 +116,7 @@ Google Cloud credentials.
 - Idle and inefficient capacity signals.
 - Explainable optimization recommendations.
 - Prometheus metrics and Grafana dashboards.
-- A short end-to-end demonstration with automatic cleanup.
+- A short end-to-end demonstration with explicit cleanup.
 
 ### Out of scope
 
@@ -231,8 +233,8 @@ expected growth before changing resources.
 The startup installs Grafana `13.1.3` from the maintained Grafana Community
 chart `12.10.4` and automatically provisions the Prometheus data source and the
 **Vaipex Cloud Cost & Capacity Control Plane** dashboard. It displays requested
-capacity cost, total CPU and
-memory reservations, review-candidate count, requested-versus-used CPU,
+capacity cost, total CPU and memory reservations, review-candidate count,
+requested-versus-used CPU,
 utilization ratios, estimated cost by pod, and ownership metadata.
 
 Open the dashboard with:
@@ -301,12 +303,6 @@ Remove only this project's cluster with:
 
 The lab stores metrics and dashboards ephemerally. Deleting its kind cluster is
 the complete cleanup; it does not affect any other kind cluster.
-
-## Current Status
-
-The reference implementation is complete. Its automated local lifecycle,
-allocation model, capacity comparisons, recommendations, dashboards, CI checks,
-documentation, and cleanup path are ready for community use.
 
 ## Contributing
 
