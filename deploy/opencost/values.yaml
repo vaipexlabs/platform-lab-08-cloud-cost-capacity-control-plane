@@ -40,3 +40,8 @@ opencost:
       zoneNetworkEgress: 0.01
       regionNetworkEgress: 0.01
       internetNetworkEgress: 0.12
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9003"
+  prometheus.io/path: /metrics

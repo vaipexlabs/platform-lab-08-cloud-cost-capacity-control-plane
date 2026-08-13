@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vaipex-cost-capacity-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  vaipex-cost-capacity.json: |
+    {
+      "annotations": {"list": []},
+      "editable": false,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "decimals": 4, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 0.02}]}, "unit": "currencyUSD"}, "overrides": []},
+          "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0},
+          "id": 1,
+          "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+          "targets": [{"editorMode": "code", "expr": "sum(vaipex_workload_cpu_request_cores) * 0.04 + sum(vaipex_workload_memory_request_bytes) / 1024 / 1024 / 1024 * 0.005", "legendFormat": "requested capacity", "range": true, "refId": "A"}],
+          "title": "Estimated Requested Capacity Cost / Hour",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 0.5}]}, "unit": "cores"}, "overrides": []},
+          "gridPos": {"h": 5, "w": 6, "x": 6, "y": 0},
+          "id": 2,
+          "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+          "targets": [{"editorMode": "code", "expr": "sum(vaipex_workload_cpu_request_cores)", "legendFormat": "CPU requested", "range": true, "refId": "A"}],
+          "title": "CPU Requested",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "decimals": 2, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 268435456}]}, "unit": "bytes"}, "overrides": []},
+          "gridPos": {"h": 5, "w": 6, "x": 12, "y": 0},
+          "id": 3,
+          "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+          "targets": [{"editorMode": "code", "expr": "sum(vaipex_workload_memory_request_bytes)", "legendFormat": "memory requested", "range": true, "refId": "A"}],
+          "title": "Memory Requested",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "red", "value": 1}]}, "unit": "short"}, "overrides": []},
+          "gridPos": {"h": 5, "w": 6, "x": 18, "y": 0},
+          "id": 4,
+          "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+          "targets": [{"editorMode": "code", "expr": "count((vaipex_workload_cpu_request_utilization_ratio < 0.10) and on(namespace, pod) (vaipex_workload_memory_request_utilization_ratio < 0.20))", "legendFormat": "review candidates", "range": true, "refId": "A"}],
+          "title": "Capacity Review Candidates",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "CPU cores", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5, "showPoints": "never", "spanNulls": false, "stacking": {"group": "A", "mode": "none"}}, "unit": "cores"}, "overrides": []},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 5},
+          "id": 5,
+          "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+          "targets": [
+            {"editorMode": "code", "expr": "vaipex_workload_cpu_request_cores", "legendFormat": "request {{pod}}", "range": true, "refId": "A"},
+            {"editorMode": "code", "expr": "vaipex_workload_cpu_usage_cores", "legendFormat": "used {{pod}}", "range": true, "refId": "B"}
+          ],
+          "title": "CPU Request vs Actual Usage",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "Percent of request", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5, "showPoints": "never", "spanNulls": false, "stacking": {"group": "A", "mode": "none"}}, "max": 100, "min": 0, "unit": "percent"}, "overrides": []},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 5},
+          "id": 6,
+          "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+          "targets": [
+            {"editorMode": "code", "expr": "vaipex_workload_cpu_request_utilization_ratio * 100", "legendFormat": "CPU {{pod}}", "range": true, "refId": "A"},
+            {"editorMode": "code", "expr": "vaipex_workload_memory_request_utilization_ratio * 100", "legendFormat": "memory {{pod}}", "range": true, "refId": "B"}
+          ],
+          "title": "Request Utilization by Workload",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "USD/hour", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5, "showPoints": "never", "spanNulls": false, "stacking": {"group": "A", "mode": "none"}}, "decimals": 5, "unit": "currencyUSD"}, "overrides": []},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 13},
+          "id": 7,
+          "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+          "targets": [{"editorMode": "code", "expr": "vaipex_workload_cpu_request_cores * 0.04 + on(namespace, pod) vaipex_workload_memory_request_bytes / 1024 / 1024 / 1024 * 0.005", "legendFormat": "{{pod}}", "range": true, "refId": "A"}],
+          "title": "Estimated Requested Capacity Cost by Pod",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {}, "overrides": []},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 13},
+          "id": 8,
+          "options": {"cellHeight": "sm", "showHeader": true},
+          "targets": [{"editorMode": "code", "expr": "kube_pod_labels{namespace=\"vaipex-cost-demo\", label_vaipex_io_owner!=\"\"}", "format": "table", "instant": true, "legendFormat": "__auto", "range": false, "refId": "A"}],
+          "title": "Ownership and Capacity Metadata",
+          "transformations": [{"id": "organize", "options": {"excludeByName": {"Time": true, "Value": true, "__name__": true, "instance": true, "job": true, "node": true, "service": true, "uid": true}, "indexByName": {}, "renameByName": {"label_app_kubernetes_io_environment": "Environment", "label_app_kubernetes_io_name": "Service", "label_vaipex_io_capacity_profile": "Capacity profile", "label_vaipex_io_cost_center": "Cost center", "label_vaipex_io_owner": "Owner", "namespace": "Namespace", "pod": "Pod"}}}],
+          "type": "table"
+        }
+      ],
+      "refresh": "15s",
+      "schemaVersion": 42,
+      "tags": ["vaipex", "finops", "capacity"],
+      "templating": {"list": []},
+      "time": {"from": "now-30m", "to": "now"},
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "Vaipex Cloud Cost & Capacity Control Plane",
+      "uid": "vaipex-cost-capacity",
+      "version": 1
+    }

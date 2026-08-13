@@ -1,0 +1,26 @@
+adminUser: admin
+adminPassword: vaipex-local
+
+persistence:
+  enabled: false
+
+testFramework:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    searchNamespace: monitoring
+  datasources:
+    enabled: true
+    label: grafana_datasource
+    searchNamespace: monitoring

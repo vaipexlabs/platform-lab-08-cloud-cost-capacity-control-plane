@@ -1,0 +1,57 @@
+name: Validate reference implementation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Add pinned chart repositories
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add opencost https://opencost.github.io/opencost-helm-chart
+          helm repo add grafana-community https://grafana-community.github.io/helm-charts
+
+      - name: Validate shell scripts
+        run: |
+          bash -n scripts/*.sh
+          shellcheck --external-sources --source-path=. scripts/*.sh
+
+      - name: Validate dashboard JSON
+        run: |
+          ruby -ryaml -rjson -e 'JSON.parse(YAML.load_file("deploy/grafana/dashboard.yaml").dig("data", "vaipex-cost-capacity.json"))'
+
+      - name: Render pinned Helm releases
+        run: |
+          source versions.env
+          mkdir -p rendered
+          helm template prometheus prometheus-community/prometheus \
+            --version "${PROMETHEUS_CHART_VERSION}" \
+            --namespace "${MONITORING_NAMESPACE}" \
+            --values deploy/prometheus/values.yaml > rendered/prometheus.yaml
+          helm template opencost opencost/opencost \
+            --version "${OPENCOST_CHART_VERSION}" \
+            --namespace "${OPENCOST_NAMESPACE}" \
+            --values deploy/opencost/values.yaml > rendered/opencost.yaml
+          helm template grafana grafana-community/grafana \
+            --version "${GRAFANA_CHART_VERSION}" \
+            --namespace "${MONITORING_NAMESPACE}" \
+            --values deploy/grafana/values.yaml > rendered/grafana.yaml
+
+      - name: Validate Kubernetes resources client-side
+        run: |
+          kubectl create --dry-run=client --validate=false --output yaml --filename bootstrap/namespaces.yaml >/dev/null
+          kubectl create --dry-run=client --validate=false --output yaml --filename deploy/workloads >/dev/null
+          kubectl create --dry-run=client --validate=false --output yaml --filename deploy/grafana/datasource.yaml >/dev/null
+          kubectl create --dry-run=client --validate=false --output yaml --filename deploy/grafana/dashboard.yaml >/dev/null
+          kubectl create --dry-run=client --validate=false --output yaml --filename rendered >/dev/null

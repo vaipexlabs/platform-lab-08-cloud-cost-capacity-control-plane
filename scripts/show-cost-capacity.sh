@@ -28,18 +28,26 @@ for _ in $(seq 1 30); do
   sleep 1
 done
 
-allocation="$(curl --silent --fail --get \
-  http://127.0.0.1:19003/allocation/compute \
-  --data-urlencode 'window=15m' \
-  --data-urlencode 'aggregate=pod' \
-  --data-urlencode "filter=namespace:\"${WORKLOAD_NAMESPACE}\"")"
+allocation=""
+row_count=0
+for _ in $(seq 1 30); do
+  allocation="$(curl --silent --fail --get \
+    http://127.0.0.1:19003/allocation/compute \
+    --data-urlencode 'window=15m' \
+    --data-urlencode 'aggregate=pod' \
+    --data-urlencode "filter=namespace:\"${WORKLOAD_NAMESPACE}\"")"
+  row_count="$(jq '[.data[0][]] | length' <<<"${allocation}")"
+  if (( row_count >= 2 )); then
+    break
+  fi
+  sleep 2
+done
 
 if [[ "$(jq -r '.code' <<<"${allocation}")" != "200" ]]; then
   echo "OpenCost allocation API did not return a successful response." >&2
   exit 1
 fi
 
-row_count="$(jq '[.data[0][]] | length' <<<"${allocation}")"
 if (( row_count < 2 )); then
   echo "Expected allocations for two demo workloads; found ${row_count}." >&2
   exit 1

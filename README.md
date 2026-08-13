@@ -6,7 +6,7 @@ consumption, cost allocation, capacity efficiency, and service ownership.
 Developed by **Vaipex Labs** for the developer and platform engineering
 community.
 
-![Status](https://img.shields.io/badge/Status-Foundation-6D5DFB)
+![Status](https://img.shields.io/badge/Status-Complete-16A34A)
 ![Focus](https://img.shields.io/badge/Focus-FinOps%20%26%20Capacity-0B5FFF)
 ![Kubernetes](https://img.shields.io/badge/Platform-Kubernetes-326CE5?logo=kubernetes&logoColor=white)
 ![OpenCost](https://img.shields.io/badge/Cost-OpenCost-7C3AED)
@@ -16,8 +16,10 @@ community.
 [Why This Project Exists](#why-this-project-exists) ·
 [Intended Flow](#intended-flow) ·
 [Component Architecture](#component-architecture) ·
+[Two-Minute Demo](#two-minute-demo) ·
+[What the Demo Proves](#what-the-demo-proves) ·
 [Project Boundaries](#project-boundaries) ·
-[Delivery Roadmap](#delivery-roadmap)
+[Operations](#operations)
 
 ## Project at a Glance
 
@@ -78,7 +80,7 @@ treat low utilization alone as proof of waste.
 
 ### Packaging decision
 
-The local platform will install separate, version-pinned Helm releases for:
+The local platform installs separate, version-pinned Helm releases for:
 
 1. A compact Prometheus Community metrics stack.
 2. OpenCost.
@@ -98,7 +100,7 @@ the cost-and-capacity scope of this lab.
 
 ## Project Boundaries
 
-The reference implementation will use a local kind cluster and configurable
+The reference implementation uses a local kind cluster and configurable
 pricing. Its results represent **cost allocation estimates**, not a cloud bill.
 This keeps the project free, portable, and reproducible without AWS, Azure, or
 Google Cloud credentials.
@@ -123,21 +125,6 @@ Google Cloud credentials.
 - Multi-cluster or multi-cloud aggregation.
 - A required public-cloud account.
 
-## Delivery Roadmap
-
-- [x] Define the problem, intended users, outcomes, and project boundaries.
-- [x] Select the component architecture and define each tool's responsibility.
-- [x] Establish the repository foundation, license, and contribution guidance.
-- [x] Create the local Kubernetes and metrics platform lifecycle.
-- [x] Deploy owned workloads with contrasting capacity profiles.
-- [x] Add OpenCost with explicit local pricing assumptions.
-- [x] Expose cost allocation by service, team, namespace, and environment.
-- [x] Compare requested capacity with actual utilization.
-- [x] Produce explainable optimization recommendations.
-- [ ] Add dashboards and actionable cost-capacity views.
-- [ ] Add automated validation and a two-minute demonstration.
-- [ ] Add operational guidance and polish the community-facing project.
-
 ## Design Principles
 
 - Cost estimates disclose their pricing assumptions.
@@ -147,15 +134,17 @@ Google Cloud credentials.
 - The platform supports decisions; it does not make unsafe automatic changes.
 - The reference implementation remains portable and replaceable by design.
 
-## Run Locally
+## Two-Minute Demo
 
 Prerequisites: Docker Desktop, kind `v0.32.0`, kubectl, Helm, `curl`, and `jq`.
+Docker must be running. A cold first run may take longer while container images
+are downloaded; subsequent runs reconcile the existing environment quickly.
 
 ```bash
-./scripts/start-local.sh
+./scripts/two-minute-demo.sh
 ```
 
-This creates the dedicated `vaipex-cost-capacity` kind cluster with a
+The demo creates the dedicated `vaipex-cost-capacity` kind cluster with a
 digest-pinned Kubernetes `v1.36.1` node. It installs Prometheus `v3.13.2` from
 Prometheus Community chart `29.24.0`, retains kube-state-metrics and
 node-exporter, and verifies that declared workload state and actual cAdvisor
@@ -228,6 +217,50 @@ These are decision-support signals, not resize instructions. A service owner
 must consider demand patterns, reliability targets, startup behavior, and
 expected growth before changing resources.
 
+### Grafana dashboard
+
+The startup installs Grafana `13.1.3` from the maintained Grafana Community
+chart `12.10.4` and automatically provisions the Prometheus data source and the
+**Vaipex Cloud Cost & Capacity Control Plane** dashboard. It displays requested
+capacity cost, total CPU and
+memory reservations, review-candidate count, requested-versus-used CPU,
+utilization ratios, estimated cost by pod, and ownership metadata.
+
+Open the dashboard with:
+
+```bash
+kubectl --context kind-vaipex-cost-capacity \
+  --namespace monitoring port-forward service/grafana 3000:80
+```
+
+Visit <http://localhost:3000>, then sign in with `admin` / `vaipex-local`. These
+credentials belong only to the disposable local lab and must not be reused in a
+shared or production environment.
+
+## What the Demo Proves
+
+| Capability | Evidence produced |
+| --- | --- |
+| Reproducible platform | Version-pinned kind, Kubernetes, Helm charts, and workload image |
+| Cost allocation | OpenCost API returns explicit modeled cost for both workloads |
+| Capacity visibility | Requested CPU and memory are compared with measured use |
+| Ownership | Service, owner/team, environment, and cost-center labels travel into allocations |
+| Explainable action | Visible thresholds produce review signals without modifying resources |
+| Operator experience | A pre-provisioned Grafana dashboard and command-line report show the same model |
+| Automation | GitHub Actions validates scripts, dashboard JSON, Kubernetes resources, and Helm rendering |
+
+## Operations
+
+Check every running component without rebuilding it:
+
+```bash
+./scripts/verify-platform.sh
+```
+
+Reconcile the complete environment directly with `./scripts/start-local.sh`.
+All installers use declarative apply or Helm upgrade/install semantics, so the
+command is safe to run again.
+
 Reapply and verify only the sample workloads with:
 
 ```bash
@@ -241,10 +274,22 @@ Remove only this project's cluster with:
 ./scripts/stop-local.sh
 ```
 
+| Symptom | Check |
+| --- | --- |
+| Preflight reports Docker unavailable | Start Docker Desktop and rerun the demo |
+| Required command is missing | Install the named prerequisite and ensure it is on `PATH` |
+| Dashboard has no recent data | Wait for two or three 15-second scrapes, then refresh |
+| OpenCost has no allocation rows | Confirm both demo deployments are Ready and wait for metrics history |
+| Local port is already allocated | Stop the earlier port-forward or choose another local port |
+
+The lab stores metrics and dashboards ephemerally. Deleting its kind cluster is
+the complete cleanup; it does not affect any other kind cluster.
+
 ## Current Status
 
-The cost, ownership, capacity-comparison, and recommendation data path is
-complete. The next milestone presents these signals in Grafana.
+The reference implementation is complete. Its automated local lifecycle,
+allocation model, capacity comparisons, recommendations, dashboards, CI checks,
+documentation, and cleanup path are ready for community use.
 
 ## Contributing
 
