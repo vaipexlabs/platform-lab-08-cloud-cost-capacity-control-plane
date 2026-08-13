@@ -9,5 +9,7 @@ SCRIPT_DIR="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)"
 "${SCRIPT_DIR}/verify-metrics.sh"
 "${SCRIPT_DIR}/deploy-workloads.sh"
 "${SCRIPT_DIR}/verify-workloads.sh"
+"${SCRIPT_DIR}/install-opencost.sh"
+"${SCRIPT_DIR}/verify-opencost.sh"
 
 echo "Vaipex Cloud Cost & Capacity local platform is ready."

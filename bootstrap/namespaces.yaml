@@ -8,6 +8,13 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: opencost
+  labels:
+    app.kubernetes.io/part-of: vaipex-cloud-cost-capacity
+---
+apiVersion: v1
+kind: Namespace
+metadata:
   name: vaipex-cost-demo
   labels:
     app.kubernetes.io/part-of: vaipex-cloud-cost-capacity

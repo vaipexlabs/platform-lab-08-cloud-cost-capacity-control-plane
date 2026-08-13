@@ -130,7 +130,7 @@ Google Cloud credentials.
 - [x] Establish the repository foundation, license, and contribution guidance.
 - [x] Create the local Kubernetes and metrics platform lifecycle.
 - [x] Deploy owned workloads with contrasting capacity profiles.
-- [ ] Add OpenCost with explicit local pricing assumptions.
+- [x] Add OpenCost with explicit local pricing assumptions.
 - [ ] Expose cost allocation by service, team, namespace, and environment.
 - [ ] Compare requested capacity with actual utilization.
 - [ ] Produce explainable optimization recommendations.
@@ -178,6 +178,31 @@ Alertmanager and Pushgateway are excluded because this lab does not currently
 use either capability. Local metrics use six-hour ephemeral retention and
 disappear with the cluster.
 
+### Pricing assumptions
+
+OpenCost `1.121.1` is installed from chart `2.5.29` and reads the local
+Prometheus service. The lab intentionally uses simple illustrative USD prices:
+
+| Resource | Declared price |
+| --- | ---: |
+| CPU | $0.040 per core-hour |
+| RAM | $0.005 per GiB-hour |
+| Persistent storage | $0.00014 per GiB-hour |
+| Internet egress | $0.12 per GiB |
+
+These declared prices make the allocation math reproducible. They are not
+provider quotes, negotiated rates, invoice reconciliation, or financial
+advice. Change `deploy/opencost/values.yaml` to model another pricing baseline.
+
+To open the OpenCost interface after startup:
+
+```bash
+kubectl --context kind-vaipex-cost-capacity \
+  --namespace opencost port-forward service/opencost 19090:9090
+```
+
+Then visit <http://localhost:19090>.
+
 Reapply and verify only the sample workloads with:
 
 ```bash
@@ -193,9 +218,9 @@ Remove only this project's cluster with:
 
 ## Current Status
 
-The repository foundation, compact metrics plane, and contrasting owned
-workloads are complete. The next milestone adds OpenCost with transparent local
-pricing assumptions.
+The repository foundation, metrics plane, owned workloads, and OpenCost pricing
+model are complete. The next milestone exposes allocations through stable
+service, team, namespace, and environment dimensions.
 
 ## Contributing
 

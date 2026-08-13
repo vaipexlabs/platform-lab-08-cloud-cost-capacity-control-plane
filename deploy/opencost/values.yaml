@@ -1,0 +1,42 @@
+opencost:
+  exporter:
+    defaultClusterId: vaipex-cost-capacity
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  ui:
+    enabled: true
+    useIPv6: false
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+  prometheus:
+    internal:
+      enabled: true
+      serviceName: prometheus-server
+      namespaceName: monitoring
+      port: 80
+      scheme: http
+  customPricing:
+    enabled: true
+    provider: custom
+    createConfigmap: true
+    costModel:
+      description: Illustrative local USD prices per resource-hour; not a cloud bill.
+      CPU: 0.04
+      spotCPU: 0.04
+      RAM: 0.005
+      spotRAM: 0.005
+      GPU: 0.95
+      storage: 0.00014
+      zoneNetworkEgress: 0.01
+      regionNetworkEgress: 0.01
+      internetNetworkEgress: 0.12
