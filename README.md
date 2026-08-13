@@ -131,9 +131,9 @@ Google Cloud credentials.
 - [x] Create the local Kubernetes and metrics platform lifecycle.
 - [x] Deploy owned workloads with contrasting capacity profiles.
 - [x] Add OpenCost with explicit local pricing assumptions.
-- [ ] Expose cost allocation by service, team, namespace, and environment.
-- [ ] Compare requested capacity with actual utilization.
-- [ ] Produce explainable optimization recommendations.
+- [x] Expose cost allocation by service, team, namespace, and environment.
+- [x] Compare requested capacity with actual utilization.
+- [x] Produce explainable optimization recommendations.
 - [ ] Add dashboards and actionable cost-capacity views.
 - [ ] Add automated validation and a two-minute demonstration.
 - [ ] Add operational guidance and polish the community-facing project.
@@ -203,6 +203,31 @@ kubectl --context kind-vaipex-cost-capacity \
 
 Then visit <http://localhost:19090>.
 
+### Cost and capacity report
+
+After the platform has collected several minutes of data, run:
+
+```bash
+./scripts/show-cost-capacity.sh
+```
+
+The report joins OpenCost allocation with the labels attached to each workload
+and displays service, owner/team, environment, CPU and memory requests, actual
+usage, efficiency, and an hourly cost estimate. Prometheus recording rules also
+publish stable requested-capacity, actual-usage, and utilization-ratio metrics
+for dashboards and ad hoc analysis.
+
+Recommendations use two intentionally simple, visible thresholds:
+
+- Review lower requests only when both CPU efficiency is below 10% and memory
+  efficiency is below 20%.
+- Review headroom when either CPU or memory exceeds 80% of its request.
+- Otherwise, continue observing the workload.
+
+These are decision-support signals, not resize instructions. A service owner
+must consider demand patterns, reliability targets, startup behavior, and
+expected growth before changing resources.
+
 Reapply and verify only the sample workloads with:
 
 ```bash
@@ -218,9 +243,8 @@ Remove only this project's cluster with:
 
 ## Current Status
 
-The repository foundation, metrics plane, owned workloads, and OpenCost pricing
-model are complete. The next milestone exposes allocations through stable
-service, team, namespace, and environment dimensions.
+The cost, ownership, capacity-comparison, and recommendation data path is
+complete. The next milestone presents these signals in Grafana.
 
 ## Contributing
 

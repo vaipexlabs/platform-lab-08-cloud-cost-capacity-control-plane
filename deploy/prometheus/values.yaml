@@ -28,3 +28,54 @@ server:
     limits:
       cpu: 500m
       memory: 512Mi
+
+serverFiles:
+  recording_rules.yml:
+    groups:
+      - name: vaipex-cost-capacity
+        interval: 30s
+        rules:
+          - record: vaipex_workload_cpu_request_cores
+            expr: |
+              sum by (namespace, pod) (
+                kube_pod_container_resource_requests{
+                  namespace="vaipex-cost-demo",
+                  resource="cpu",
+                  unit="core"
+                }
+              )
+          - record: vaipex_workload_cpu_usage_cores
+            expr: |
+              sum by (namespace, pod) (
+                rate(container_cpu_usage_seconds_total{
+                  namespace="vaipex-cost-demo",
+                  container="workload"
+                }[5m])
+              )
+          - record: vaipex_workload_cpu_request_utilization_ratio
+            expr: |
+              vaipex_workload_cpu_usage_cores
+              /
+              vaipex_workload_cpu_request_cores
+          - record: vaipex_workload_memory_request_bytes
+            expr: |
+              sum by (namespace, pod) (
+                kube_pod_container_resource_requests{
+                  namespace="vaipex-cost-demo",
+                  resource="memory",
+                  unit="byte"
+                }
+              )
+          - record: vaipex_workload_memory_usage_bytes
+            expr: |
+              sum by (namespace, pod) (
+                container_memory_working_set_bytes{
+                  namespace="vaipex-cost-demo",
+                  container="workload"
+                }
+              )
+          - record: vaipex_workload_memory_request_utilization_ratio
+            expr: |
+              vaipex_workload_memory_usage_bytes
+              /
+              vaipex_workload_memory_request_bytes
