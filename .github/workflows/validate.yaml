@@ -48,10 +48,20 @@ jobs:
             --namespace "${MONITORING_NAMESPACE}" \
             --values deploy/grafana/values.yaml > rendered/grafana.yaml
 
-      - name: Validate Kubernetes resources client-side
+      - name: Install pinned kubeconform
         run: |
-          kubectl create --dry-run=client --validate=false --output yaml --filename bootstrap/namespaces.yaml >/dev/null
-          kubectl create --dry-run=client --validate=false --output yaml --filename deploy/workloads >/dev/null
-          kubectl create --dry-run=client --validate=false --output yaml --filename deploy/grafana/datasource.yaml >/dev/null
-          kubectl create --dry-run=client --validate=false --output yaml --filename deploy/grafana/dashboard.yaml >/dev/null
-          kubectl create --dry-run=client --validate=false --output yaml --filename rendered >/dev/null
+          curl --fail --location --silent --show-error \
+            https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-linux-amd64.tar.gz \
+            --output /tmp/kubeconform-linux-amd64.tar.gz
+          echo '9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883  /tmp/kubeconform-linux-amd64.tar.gz' | sha256sum --check
+          sudo tar --extract --gzip --file /tmp/kubeconform-linux-amd64.tar.gz \
+            --directory /usr/local/bin kubeconform
+
+      - name: Validate Kubernetes resource schemas
+        run: |
+          kubeconform -strict -summary \
+            bootstrap/namespaces.yaml \
+            deploy/workloads \
+            deploy/grafana/datasource.yaml \
+            deploy/grafana/dashboard.yaml \
+            rendered
