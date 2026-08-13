@@ -128,7 +128,7 @@ Google Cloud credentials.
 - [x] Define the problem, intended users, outcomes, and project boundaries.
 - [x] Select the component architecture and define each tool's responsibility.
 - [x] Establish the repository foundation, license, and contribution guidance.
-- [ ] Create the local Kubernetes and metrics platform lifecycle.
+- [x] Create the local Kubernetes and metrics platform lifecycle.
 - [ ] Deploy owned workloads with contrasting capacity profiles.
 - [ ] Add OpenCost with explicit local pricing assumptions.
 - [ ] Expose cost allocation by service, team, namespace, and environment.
@@ -147,12 +147,32 @@ Google Cloud credentials.
 - The platform supports decisions; it does not make unsafe automatic changes.
 - The reference implementation remains portable and replaceable by design.
 
+## Local Metrics Plane
+
+Prerequisites: Docker Desktop, kind `v0.32.0`, kubectl, Helm, `curl`, and `jq`.
+
+```bash
+./scripts/start-local.sh
+```
+
+This creates the dedicated `vaipex-cost-capacity` kind cluster with a
+digest-pinned Kubernetes `v1.36.1` node. It installs Prometheus `v3.13.2` from
+Prometheus Community chart `29.24.0`, retains kube-state-metrics and
+node-exporter, and verifies that declared workload state and actual cAdvisor
+usage are queryable. Alertmanager and Pushgateway are excluded because this lab
+does not currently use either capability. Local metrics use six-hour ephemeral
+retention and disappear with the cluster.
+
+Remove only this project's cluster with:
+
+```bash
+./scripts/stop-local.sh
+```
+
 ## Current Status
 
-The project foundation, diagrams, licensing, contribution guidance, boundaries,
-and compact component architecture are defined. Implementation will proceed in
-small, independently reviewed milestones so each decision and its trade-offs
-remain visible.
+The repository foundation and compact metrics plane are complete. The next
+milestone adds owned sample workloads with contrasting capacity profiles.
 
 ## Contributing
 

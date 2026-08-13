@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    app.kubernetes.io/part-of: vaipex-cloud-cost-capacity
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vaipex-cost-demo
+  labels:
+    app.kubernetes.io/part-of: vaipex-cloud-cost-capacity
+    app.kubernetes.io/environment: local
+    vaipex.io/cost-scope: enabled
