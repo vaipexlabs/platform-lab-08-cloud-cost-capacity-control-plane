@@ -192,6 +192,15 @@ kubectl --context kind-vaipex-cost-capacity \
 
 Then visit <http://localhost:19090>.
 
+#### OpenCost allocation view
+
+![OpenCost dashboard showing cluster cost, efficiency, and namespace allocation](docs/images/opencost-allocation-dashboard.png)
+
+The OpenCost view shows the modeled cluster cost and its allocation across the
+demo, monitoring, OpenCost, Kubernetes system, storage, and idle-capacity
+categories. The values are estimates derived from the pricing assumptions
+declared above—not a cloud-provider invoice.
+
 ### Cost and capacity report
 
 After the platform has collected several minutes of data, run:
@@ -236,6 +245,14 @@ kubectl --context kind-vaipex-cost-capacity \
 Visit <http://localhost:3000>, then sign in with `admin` / `vaipex-local`. These
 credentials belong only to the disposable local lab and must not be reused in a
 shared or production environment.
+
+#### Cost and capacity dashboard
+
+![Grafana dashboard showing requested cost, resource capacity, utilization, and ownership](docs/images/grafana-cost-capacity-dashboard.png)
+
+The Grafana view turns the same platform signals into an engineering decision
+surface: requested-capacity cost, CPU and memory reservations, utilization,
+review candidates, workload-level estimates, and ownership metadata.
 
 ## What the Demo Proves
 
