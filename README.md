@@ -10,6 +10,7 @@ community.
 ![Focus](https://img.shields.io/badge/Focus-FinOps%20%26%20Capacity-0B5FFF)
 ![Kubernetes](https://img.shields.io/badge/Platform-Kubernetes-326CE5?logo=kubernetes&logoColor=white)
 ![OpenCost](https://img.shields.io/badge/Cost-OpenCost-7C3AED)
+![License](https://img.shields.io/badge/License-Apache%202.0-blue)
 
 [Project at a Glance](#project-at-a-glance) ·
 [Why This Project Exists](#why-this-project-exists) ·
@@ -44,19 +45,7 @@ finance exercise or automatically trading away service reliability.
 
 ## Intended Flow
 
-```text
-Owned Kubernetes workloads
-            ↓
-Resource requests, limits, and actual usage
-            ↓
-Prometheus and OpenCost
-            ↓
-Cost allocation and capacity analysis
-            ↓
-Dashboards and explainable recommendations
-            ↓
-Service teams make informed optimization decisions
-```
+![Vaipex Cloud Cost and Capacity Control Plane flow](docs/images/vaipex-cloud-cost-capacity-flow.svg)
 
 The operating principle is:
 
@@ -70,20 +59,7 @@ The project uses a compact, explicitly wired stack instead of the broader
 `kube-prometheus-stack`. This keeps the learning surface focused on the minimum
 components required for cost allocation and capacity analysis.
 
-```text
-Kubernetes workloads
-  ├── requests, limits, and ownership labels
-  └── actual CPU and memory consumption
-                         ↓
-       kube-state-metrics + kubelet/cAdvisor
-                         ↓
-                     Prometheus
-                  ↙              ↘
-         OpenCost                 Vaipex PromQL rules
-   pricing and allocation     capacity-review signals
-                  ↘              ↙
-                       Grafana
-```
+![Vaipex Cloud Cost and Capacity Control Plane architecture](docs/images/vaipex-cloud-cost-capacity-architecture.svg)
 
 | Component | Responsibility |
 | --- | --- |
@@ -151,7 +127,7 @@ Google Cloud credentials.
 
 - [x] Define the problem, intended users, outcomes, and project boundaries.
 - [x] Select the component architecture and define each tool's responsibility.
-- [ ] Establish the repository foundation, license, and contribution guidance.
+- [x] Establish the repository foundation, license, and contribution guidance.
 - [ ] Create the local Kubernetes and metrics platform lifecycle.
 - [ ] Deploy owned workloads with contrasting capacity profiles.
 - [ ] Add OpenCost with explicit local pricing assumptions.
@@ -173,6 +149,15 @@ Google Cloud credentials.
 
 ## Current Status
 
-The project foundation, boundaries, and compact component architecture are
-defined. Implementation will proceed in small, independently reviewed
-milestones so each decision and its trade-offs remain visible.
+The project foundation, diagrams, licensing, contribution guidance, boundaries,
+and compact component architecture are defined. Implementation will proceed in
+small, independently reviewed milestones so each decision and its trade-offs
+remain visible.
+
+## Contributing
+
+Community contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md)
+for contribution expectations. Report potential vulnerabilities according to
+[SECURITY.md](SECURITY.md), not through a public issue.
+
+Licensed under the [Apache License 2.0](LICENSE).

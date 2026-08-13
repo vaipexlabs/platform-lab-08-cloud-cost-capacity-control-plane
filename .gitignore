@@ -1,0 +1,42 @@
+# macOS
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local
+.local/
+
+# Dependencies and generated output
+node_modules/
+vendor/
+bin/
+build/
+dist/
+coverage/
+tmp/
+
+# Kubernetes and local clusters
+.kube/
+kubeconfig*
+.kind/
+
+# Helm and generated manifests
+charts/
+*.tgz
+rendered/
+
+# Test and tool caches
+.cache/
+.pytest_cache/
+
+# Runtime data and logs
+data/
+*.log
