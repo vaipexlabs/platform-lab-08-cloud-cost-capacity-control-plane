@@ -6,6 +6,9 @@ prometheus-pushgateway:
 
 kube-state-metrics:
   enabled: true
+  metricLabelsAllowlist:
+    - pods=[app.kubernetes.io/name,app.kubernetes.io/part-of,app.kubernetes.io/environment,vaipex.io/owner,vaipex.io/cost-center,vaipex.io/capacity-profile]
+    - deployments=[app.kubernetes.io/name,app.kubernetes.io/part-of,app.kubernetes.io/environment,vaipex.io/owner,vaipex.io/cost-center,vaipex.io/capacity-profile]
 
 prometheus-node-exporter:
   enabled: true

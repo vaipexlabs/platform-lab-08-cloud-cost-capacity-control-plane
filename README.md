@@ -129,7 +129,7 @@ Google Cloud credentials.
 - [x] Select the component architecture and define each tool's responsibility.
 - [x] Establish the repository foundation, license, and contribution guidance.
 - [x] Create the local Kubernetes and metrics platform lifecycle.
-- [ ] Deploy owned workloads with contrasting capacity profiles.
+- [x] Deploy owned workloads with contrasting capacity profiles.
 - [ ] Add OpenCost with explicit local pricing assumptions.
 - [ ] Expose cost allocation by service, team, namespace, and environment.
 - [ ] Compare requested capacity with actual utilization.
@@ -147,7 +147,7 @@ Google Cloud credentials.
 - The platform supports decisions; it does not make unsafe automatic changes.
 - The reference implementation remains portable and replaceable by design.
 
-## Local Metrics Plane
+## Run Locally
 
 Prerequisites: Docker Desktop, kind `v0.32.0`, kubectl, Helm, `curl`, and `jq`.
 
@@ -159,9 +159,31 @@ This creates the dedicated `vaipex-cost-capacity` kind cluster with a
 digest-pinned Kubernetes `v1.36.1` node. It installs Prometheus `v3.13.2` from
 Prometheus Community chart `29.24.0`, retains kube-state-metrics and
 node-exporter, and verifies that declared workload state and actual cAdvisor
-usage are queryable. Alertmanager and Pushgateway are excluded because this lab
-does not currently use either capability. Local metrics use six-hour ephemeral
-retention and disappear with the cluster.
+usage are queryable. It then deploys two synthetic services:
+
+| Workload | Behavior | CPU request | Memory request | Ownership |
+| --- | --- | ---: | ---: | --- |
+| `checkout-api` | Performs small, repeated compute operations | 100m | 64Mi | `commerce-platform` |
+| `report-generator` | Remains mostly idle | 500m | 256Mi | `data-platform` |
+
+The contrast is deliberate: the active service has a modest allocation while
+the idle service reserves five times more CPU and four times more memory. Both
+use the same digest-pinned multi-architecture image, restricted security
+settings, explicit resource limits, health probes, and stable service, owner,
+environment, cost-center, and capacity-profile labels. This isolates capacity
+intent from application-framework differences and supplies attribution data to
+the control plane.
+
+Alertmanager and Pushgateway are excluded because this lab does not currently
+use either capability. Local metrics use six-hour ephemeral retention and
+disappear with the cluster.
+
+Reapply and verify only the sample workloads with:
+
+```bash
+./scripts/deploy-workloads.sh
+./scripts/verify-workloads.sh
+```
 
 Remove only this project's cluster with:
 
@@ -171,8 +193,9 @@ Remove only this project's cluster with:
 
 ## Current Status
 
-The repository foundation and compact metrics plane are complete. The next
-milestone adds owned sample workloads with contrasting capacity profiles.
+The repository foundation, compact metrics plane, and contrasting owned
+workloads are complete. The next milestone adds OpenCost with transparent local
+pricing assumptions.
 
 ## Contributing
 

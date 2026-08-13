@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: report-generator
+  namespace: vaipex-cost-demo
+  labels:
+    app.kubernetes.io/name: report-generator
+    app.kubernetes.io/part-of: vaipex-analytics
+    app.kubernetes.io/environment: local
+    vaipex.io/owner: data-platform
+    vaipex.io/cost-center: analytics
+    vaipex.io/capacity-profile: idle-overprovisioned
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: report-generator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: report-generator
+        app.kubernetes.io/part-of: vaipex-analytics
+        app.kubernetes.io/environment: local
+        vaipex.io/owner: data-platform
+        vaipex.io/cost-center: analytics
+        vaipex.io/capacity-profile: idle-overprovisioned
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: workload
+          image: busybox:1.37@sha256:9db7b59979c38555a39def84a31fb98b5296952f9e3afd4f6f11f05b07adfab0
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c", "while true; do sleep 3600; done"]
+          resources:
+            requests:
+              cpu: 500m
+              memory: 256Mi
+            limits:
+              cpu: 750m
+              memory: 384Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+          readinessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "test -r /proc/1/status"]
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "test -r /proc/1/status"]
+            initialDelaySeconds: 5
+            periodSeconds: 15

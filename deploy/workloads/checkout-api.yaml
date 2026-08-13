@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-api
+  namespace: vaipex-cost-demo
+  labels:
+    app.kubernetes.io/name: checkout-api
+    app.kubernetes.io/part-of: vaipex-commerce
+    app.kubernetes.io/environment: local
+    vaipex.io/owner: commerce-platform
+    vaipex.io/cost-center: product-engineering
+    vaipex.io/capacity-profile: active-efficient
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: checkout-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: checkout-api
+        app.kubernetes.io/part-of: vaipex-commerce
+        app.kubernetes.io/environment: local
+        vaipex.io/owner: commerce-platform
+        vaipex.io/cost-center: product-engineering
+        vaipex.io/capacity-profile: active-efficient
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: workload
+          image: busybox:1.37@sha256:9db7b59979c38555a39def84a31fb98b5296952f9e3afd4f6f11f05b07adfab0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                dd if=/dev/zero bs=1M count=8 2>/dev/null | sha256sum >/dev/null
+                sleep 1
+              done
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+          readinessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "test -r /proc/1/status"]
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "test -r /proc/1/status"]
+            initialDelaySeconds: 5
+            periodSeconds: 15
