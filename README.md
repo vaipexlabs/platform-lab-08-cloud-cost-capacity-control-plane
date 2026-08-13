@@ -14,6 +14,7 @@ community.
 [Project at a Glance](#project-at-a-glance) ·
 [Why This Project Exists](#why-this-project-exists) ·
 [Intended Flow](#intended-flow) ·
+[Component Architecture](#component-architecture) ·
 [Project Boundaries](#project-boundaries) ·
 [Delivery Roadmap](#delivery-roadmap)
 
@@ -63,6 +64,55 @@ The operating principle is:
 > ownership, and support decisions without automatically sacrificing
 > reliability.
 
+## Component Architecture
+
+The project uses a compact, explicitly wired stack instead of the broader
+`kube-prometheus-stack`. This keeps the learning surface focused on the minimum
+components required for cost allocation and capacity analysis.
+
+```text
+Kubernetes workloads
+  ├── requests, limits, and ownership labels
+  └── actual CPU and memory consumption
+                         ↓
+       kube-state-metrics + kubelet/cAdvisor
+                         ↓
+                     Prometheus
+                  ↙              ↘
+         OpenCost                 Vaipex PromQL rules
+   pricing and allocation     capacity-review signals
+                  ↘              ↙
+                       Grafana
+```
+
+| Component | Responsibility |
+| --- | --- |
+| kind | Provide a reproducible local Kubernetes cluster |
+| kube-state-metrics | Expose workload requests, limits, identity, and ownership metadata |
+| kubelet/cAdvisor | Expose actual container CPU and memory consumption |
+| Prometheus | Collect and store resource, utilization, and cost metrics |
+| OpenCost | Apply declared prices and calculate Kubernetes cost allocations |
+| Vaipex PromQL rules | Compare requested capacity with usage and produce review signals |
+| Grafana | Present cost, capacity, ownership, assumptions, and data freshness |
+
+OpenCost answers **what estimated cost is allocated to a workload**. The Vaipex
+recording rules answer **how requested capacity compares with actual use and
+whether human review is warranted**. The rules will not resize workloads or
+treat low utilization alone as proof of waste.
+
+### Packaging decision
+
+The local platform will install separate, version-pinned Helm releases for:
+
+1. A compact Prometheus Community metrics stack.
+2. OpenCost.
+3. Grafana.
+
+This approach makes the data flow and integration points visible. The larger
+`kube-prometheus-stack` is intentionally not used because its additional
+operators, alerting components, and predefined monitoring resources are beyond
+the cost-and-capacity scope of this lab.
+
 ## Intended Users
 
 - Platform engineering teams operating Kubernetes.
@@ -100,7 +150,7 @@ Google Cloud credentials.
 ## Delivery Roadmap
 
 - [x] Define the problem, intended users, outcomes, and project boundaries.
-- [ ] Select the component architecture and define each tool's responsibility.
+- [x] Select the component architecture and define each tool's responsibility.
 - [ ] Establish the repository foundation, license, and contribution guidance.
 - [ ] Create the local Kubernetes and metrics platform lifecycle.
 - [ ] Deploy owned workloads with contrasting capacity profiles.
@@ -123,6 +173,6 @@ Google Cloud credentials.
 
 ## Current Status
 
-The project foundation and boundaries are defined. Implementation will proceed
-in small, independently reviewed milestones so each architectural decision and
-its trade-offs remain visible.
+The project foundation, boundaries, and compact component architecture are
+defined. Implementation will proceed in small, independently reviewed
+milestones so each decision and its trade-offs remain visible.
